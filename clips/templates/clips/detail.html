@@ -1,0 +1,22 @@
+{% extends "clips/base.html" %}
+
+{% block title %}Slice{% endblock %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="bg-zinc-100 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-bold">{{ clip.title }}</h2>
+    <a href="/clips/{{ clip.id }}/edit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
+  </div>
+  <p class="text-gray-700 text-base my-2">description</p>
+  <video controls class="rounded">
+    <source src="{{ clip.url }}" type="video/mp4">
+  </video>
+</div>
+
+{% endblock %}

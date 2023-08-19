@@ -1,0 +1,37 @@
+{% extends "clips/base.html" %}
+
+{% block title %}Slice{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold">Slice</h1>
+    <a href="/clips/new" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">New Clip</a>
+  </div>
+  <hr class="my-4">
+
+  <div class="bg-zinc-100 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h2 class="text-3xl font-bold">Upload Video</h2>
+    <form class="form" action="upload/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ upload_form }}
+        <input type="submit" />
+    </form>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4">
+    {% for clip in clips %}
+    <div class="bg-zinc-100 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-bold"><a href="{% url 'detail' clip.uuid %}">{{ clip.title }}</a></h2>
+        <a href="/clips/{{ clip.id }}/edit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
+      </div>
+      <p class="text-gray-700 text-base my-2">description</p>
+      <video controls class="rounded">
+        <source src="{{ clip.url }}" type="video/mp4">
+      </video>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
