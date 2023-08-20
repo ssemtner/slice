@@ -1,0 +1,93 @@
+{% extends "clips/base.html" %}
+
+{% block title %}Editor{% endblock %}
+
+{% block head %}
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div x-data="{ start: -1, end: -1 }">
+    <input type="file" id="file-input" accept="video/mp4" />
+
+    <video id="video" controls x-ref="video"></video>
+    <button @click="start = $refs.video.currentTime">Mark Start</button>
+    <button @click="end = $refs.video.currentTime">Mark End</button>
+</div>
+
+{% load static %}
+<script>
+window.onload = function (e) {
+    file_input = document.getElementById("file-input");
+    console.log(file_input)
+    file_input.onchange = function(e) {
+        console.log(e);
+        const file = e.target.files[0];
+        
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        
+        reader.onload = readerEvent => {
+            const buffer = readerEvent.target.result;
+            const url = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
+            const video = document.getElementById("video");
+            const source = document.createElement("source");
+            source.src = url;
+            source.type = "video/mp4";
+            video.appendChild(source);
+
+            // if (!ready) {
+            //     setTimeout(() => {
+            //         reader.onload(readerEvent);
+            //     }, 200);
+            //     return;
+            // }
+            // 
+            // const start = document.getElementById("start-time").value;
+            // const end = document.getElementById("end-time").value;
+
+            // const buffer = readerEvent.target.result;
+            // worker.postMessage({
+            //     type: "run",
+            //     MEMFS: [{name: "in.mp4", data: buffer}],
+            //     arguments: ["-ss", start, "-to", end, "-i", "in.mp4", "-c", "copy", "out.mp4"],              
+            // });
+        }
+    }
+    file_input.click();
+}
+</script>
+
+<script>
+
+const worker = new Worker("{% static 'ffmpeg-worker-mp4.js' %}");
+
+let ready = false;
+
+worker.onmessage = function(e) {
+    const msg = e.data;
+    switch (msg.type) {
+    case "ready":
+        ready = true;
+        break; 
+    case "stdout":
+        console.log(msg.data);
+        break;
+    case "stderr":
+        console.log(msg.data);
+        break;
+    case "done":
+        console.log(msg.data);
+        const out = msg.data.MEMFS[0];
+        const url = URL.createObjectURL(new Blob([out.data], {type: "video/mp4"}));
+        const a = document.createElement("a");
+        a.download = "out.mp4";
+        a.innerHTML = "download";
+        a.href = url;
+        document.getElementsByTagName("body")[0].appendChild(a);
+        break;
+    }
+};
+
+</script>
+{% endblock %}

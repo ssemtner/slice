@@ -1,0 +1,5 @@
+Django
+oci
+psycopg2-binary
+django_cron
+python-dotenv

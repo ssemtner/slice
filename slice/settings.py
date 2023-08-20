@@ -28,9 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = str(os.getenv("SECRET_KEY"))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = str(os.getenv("DEBUG")).lower() == "true"
 
-ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.36"]
+ALLOWED_HOSTS = ["127.0.0.1", "192.168.1.36", "*.vercel.app"]
 
 
 # Application definition

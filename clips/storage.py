@@ -21,8 +21,6 @@ def upload_clip_oci(chunks):
         ),
     ).data
 
-    print(upload)
-
     i = 1
     bigger_chunk = b""
     try:
@@ -69,8 +67,6 @@ def upload_clip_oci(chunks):
     pre_auth_req = object_store.create_preauthenticated_request(
         namespace, bucket.name, req_details
     ).data
-
-    print(pre_auth_req)
 
     return uuid, pre_auth_req.full_path, pre_auth_req.time_expires
 

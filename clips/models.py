@@ -1,4 +1,4 @@
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Dict, Tuple
 from django.db import models
 import uuid
 from datetime import datetime
@@ -19,16 +19,19 @@ class Clip(models.Model):
     thumbnail_url = models.CharField(max_length=200)
     view_count = models.IntegerField(default=0)
 
+    VisibilityType = models.TextChoices("Visibility", "PUBLIC HIDDEN PRIVATE")
+    visibility = models.CharField(choices=VisibilityType.choices, max_length=10, default=VisibilityType.HIDDEN)
+
     def save(self, *args, **kwargs) -> None:
         self.created_at = self.created_at or datetime.now()
         self.updated_at = datetime.now()
 
         return super().save(*args, **kwargs)
-    
-    def delete(self, using: Any = ..., keep_parents: bool = ...) -> Tuple[int, Dict[str, int]]:
+
+    def delete(self, *args, **kwargs) -> Tuple[int, Dict[str, int]]:
         delete_clip_oci(self.uuid)
 
-        return super().delete(using, keep_parents)
+        return super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title} by {self.user.username}"

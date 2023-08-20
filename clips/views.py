@@ -6,6 +6,10 @@ from .models import Clip
 # Create your views here.
 
 
+def editor(request):
+    return render(request, "clips/editor.html")
+
+
 def index(request):
     return render(
         request,
