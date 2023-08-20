@@ -1,10 +1,22 @@
-import oci
-from uuid import uuid4
+import os
 from datetime import datetime, timedelta
-from django_cron import CronJobBase, Schedule
-from django.apps import apps
+from uuid import uuid4
 
-config = oci.config.from_file()
+import dotenv
+import oci
+from django.apps import apps
+from django_cron import CronJobBase, Schedule
+
+
+dotenv.load_dotenv()
+config = {
+    "user": os.getenv("OCI_USER"),
+    "fingerprint": os.getenv("OCI_FINGERPRINT"),
+    "tenancy": os.getenv("OCI_TENANCY"),
+    "region": os.getenv("OCI_REGION"),
+    "key_file": os.getenv("OCI_KEY_FILE"),
+}
+oci.config.validate_config(config)
 object_store = oci.object_storage.ObjectStorageClient(config)
 namespace = object_store.get_namespace().data
 bucket = object_store.get_bucket(namespace, "clips-bucket").data
@@ -80,7 +92,7 @@ class RemoveUnusedClips(CronJobBase):
     code = "clips.remove_unused_clips"  # a unique code
 
     def do(self):
-        clip_uuids = [clip.uuid for clip in apps.get_model('clips.Clip').objects.all()]
+        clip_uuids = [clip.uuid for clip in apps.get_model("clips.Clip").objects.all()]
 
         for obj in object_store.list_objects(namespace, bucket.name).data.objects:
             if obj.name not in clip_uuids:
