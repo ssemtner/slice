@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="my-16 w-72 mx-auto">
-    <form method="post" class="form flex flex-col my-2 gap-2 col-span-2">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Login"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" />
-    </form>
+  <form method="post" class="form flex flex-col my-2 gap-2 col-span-2">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Login"
+      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4" />
+  </form>
 </div>
 {% endblock %}

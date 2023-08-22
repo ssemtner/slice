@@ -1,18 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{% endblock %}</title>
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   {% block head %}{% endblock %}
 </head>
+
 <body>
-  {% block content %}{% endblock %}
+  <div class="container mx-auto p-8">
+    <div class="flex justify-between items-center">
+      <div class="flex gap-2 items-end">
+        <h1 class="text-5xl font-bold me-8">Slice</h1>
+        {% if user.is_authenticated %}
+        {% url 'index' as index_url %}
+        <a class="text-blue-800 hover:underline {% if request.path == index_url %}bg-zinc-100 font-bold{% endif %} py-2 px-4 rounded"
+          href="{% url 'index' %}">My Clips</a>
+        {% endif %}
+
+        {% url 'explore' as explore_url %}
+        <a class="text-blue-800 hover:underline {% if request.path == explore_url %}bg-zinc-100 font-bold{% endif %} py-2 px-4 rounded"
+          href="{% url 'explore' %}">Explore</a>
+      </div>
+      <div class="flex gap-2">
+        {% if user.is_authenticated %}
+        <a href="{% url 'index' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded me-8">New Clip</a>
+
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" class="bg-zinc-100 hover:bg-zinc-200 font-bold py-2 px-4 rounded">
+            {% if user.is_authenticated %}
+            {{ user.username }}
+            {% else %}
+            Account
+            {% endif %}
+          </button>
+          <div x-show="open" @click.away="open = false"
+            class="absolute right-0 mt-2 py-2 w-48 bg-zinc-100 rounded-md shadow-xl z-50">
+            <a href="{% url 'logout' %}"
+              class="block px-4 py-2 text-gray-800 hover:bg-blue-500 hover:text-white">Logout</a>
+          </div>
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login</a>
+        <a href="{% url 'signup' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Sign
+          Up</a>
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-4">
+
+    {% block content %}{% endblock %}
+  </div>
 
   {% block script %}{% endblock %}
 </body>
+
 </html>
