@@ -25,7 +25,7 @@ bucket = object_store.get_bucket(namespace, "clips-bucket").data
 def create_par(uuid):
     req_details = oci.object_storage.models.CreatePreauthenticatedRequestDetails(
         name=uuid,
-        object_name=uuid,
+        object_name=f'{uuid}.mp4',
         access_type="ObjectRead",
         time_expires=datetime.utcnow() + timedelta(days=30),
     )
@@ -38,12 +38,13 @@ def create_par(uuid):
 
 def upload_clip_oci(chunks):
     uuid = uuid4().hex
+    filename = f"{uuid}.mp4"
 
     upload = object_store.create_multipart_upload(
         namespace,
         bucket.name,
         oci.object_storage.models.CreateMultipartUploadDetails(
-            object=uuid, content_type="video/quicktime"
+            object=filename, content_type="video/quicktime"
         ),
     ).data
 
@@ -53,7 +54,7 @@ def upload_clip_oci(chunks):
         while True:
             if len(bigger_chunk) > 5 * 1000 * 1000:  # 5 mb
                 object_store.upload_part(
-                    namespace, bucket.name, uuid, upload.upload_id, i, bigger_chunk
+                    namespace, bucket.name, filename, upload.upload_id, i, bigger_chunk
                 ).data
                 i += 1
                 bigger_chunk = b""
@@ -61,17 +62,17 @@ def upload_clip_oci(chunks):
                 bigger_chunk += next(chunks)
     except StopIteration:
         object_store.upload_part(
-            namespace, bucket.name, uuid, upload.upload_id, i, bigger_chunk
+            namespace, bucket.name, filename, upload.upload_id, i, bigger_chunk
         ).data
 
     summary = object_store.list_multipart_upload_parts(
-        namespace, bucket.name, uuid, upload.upload_id
+        namespace, bucket.name, filename, upload.upload_id
     ).data
 
     object_store.commit_multipart_upload(
         namespace,
         bucket.name,
-        uuid,
+        filename,
         upload.upload_id,
         oci.object_storage.models.CommitMultipartUploadDetails(
             parts_to_commit=[
@@ -89,7 +90,7 @@ def upload_clip_oci(chunks):
 
 
 def delete_clip_oci(uuid):
-    object_store.delete_object(namespace, bucket.name, uuid)
+    object_store.delete_object(namespace, bucket.name, f'{uuid}.mp4')
 
 
 class RemoveUnusedClips(CronJobBase):
