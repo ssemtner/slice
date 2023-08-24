@@ -22,6 +22,20 @@ namespace = object_store.get_namespace().data
 bucket = object_store.get_bucket(namespace, "clips-bucket").data
 
 
+def create_par(uuid):
+    req_details = oci.object_storage.models.CreatePreauthenticatedRequestDetails(
+        name=uuid,
+        object_name=uuid,
+        access_type="ObjectRead",
+        time_expires=datetime.utcnow() + timedelta(days=30),
+    )
+    pre_auth_req = object_store.create_preauthenticated_request(
+        namespace, bucket.name, req_details
+    ).data
+
+    return pre_auth_req.full_path, pre_auth_req.time_expires
+
+
 def upload_clip_oci(chunks):
     uuid = uuid4().hex
 
@@ -69,18 +83,9 @@ def upload_clip_oci(chunks):
         ),
     )
 
-    # Get pre-authenticated request
-    req_details = oci.object_storage.models.CreatePreauthenticatedRequestDetails(
-        name=uuid,
-        object_name=uuid,
-        access_type="ObjectRead",
-        time_expires=datetime.utcnow() + timedelta(days=30),
-    )
-    pre_auth_req = object_store.create_preauthenticated_request(
-        namespace, bucket.name, req_details
-    ).data
+    url, url_expires = create_par(uuid)
 
-    return uuid, pre_auth_req.full_path, pre_auth_req.time_expires
+    return uuid, url, url_expires
 
 
 def delete_clip_oci(uuid):
