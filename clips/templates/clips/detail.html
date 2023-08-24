@@ -3,7 +3,18 @@
 {% block title %}Slice{% endblock %}
 
 {% block head %}
-
+<meta property="og:site_name" content="Slice">
+<meta property="og:url" content="{{ request.build_absolute_uri() }}">
+<meta property="og:type" content="video.m4p">
+<meta property="og:title" content="{{ clip.title }}">
+<meta property="og:image" content="https://online.visual-paradigm.com/repository/images/645ead47-1cf0-4f84-bf6c-e082000eed3f/youtube-thumbnails-design/blank-youtube-thumbnail.png">
+<meta property="og:video" content="{{ clip.url }}">
+<meta property="og:video:type" content="video/mp4">
+<meta property="og:video:secure_url" content="{{ clip.url }}">
+<meta property="og:video:height" content="720">
+<meta property="og:video:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta property="og:image:width" content="1280">
 {% endblock %}
 
 {% block content %}
