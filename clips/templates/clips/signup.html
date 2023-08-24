@@ -3,6 +3,14 @@
 {% block title %}Slice{% endblock %}
 
 {% block content %}
+
+{# Error message #}
+{% if error %}
+<div class="bg-red-500 p-4 rounded-lg mb-6 text-white text-center">
+  <p>{{ error }}</p>
+</div>
+{% endif %}
+
 <div class="my-16 w-72 mx-auto">
   <form method="post" class="form flex flex-col my-2 gap-2 col-span-2">
     {% csrf_token %}

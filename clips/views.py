@@ -88,17 +88,30 @@ def logout_view(request):
 
 def signup_view(request):
     if request.method == "POST":
+        return render(
+            request,
+            "clips/signup.html",
+            {
+                "error": "Slice is currently invite only. Please contact scottsemtner@gmail.com",
+                "form": SignupForm(),
+            },
+        )
+
         username = request.POST["username"]
         password = request.POST["password"]
         password_confirm = request.POST["password_confirm"]
         if password != password_confirm:
             return render(
-                request, "clips/signup.html", {"error": True, "form": SignupForm()}
+                request,
+                "clips/signup.html",
+                {"error": "Passwords do not match", "form": SignupForm()},
             )
 
         if User.objects.filter(username=username).exists():
             return render(
-                request, "clips/signup.html", {"error": True, "form": SignupForm()}
+                request,
+                "clips/signup.html",
+                {"error": "A user with this name already exists", "form": SignupForm()},
             )
 
         user = User.objects.create_user(username, password=password)
