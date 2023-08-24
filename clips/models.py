@@ -62,7 +62,10 @@ class Clip(models.Model):
         return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs) -> Tuple[int, Dict[str, int]]:
-        delete_clip_oci(self.uuid)
+        try:
+            delete_clip_oci(self.uuid)
+        except:
+            pass
 
         return super().delete(*args, **kwargs)
 

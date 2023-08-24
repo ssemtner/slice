@@ -14,15 +14,13 @@ The end goal is to integrate simple video editing tools to make it quicker for m
 - [x] Preview video before upload
 - [x] Video playback
 - [x] Explore page for public videos
-- [ ] Video trimming
+- [x] Video trimming
 - [ ] Public avaliability
 - [ ] Storage limits and autodeletion options
 - [ ] Modernize UI
 - [ ] User profiles
 - [ ] Thumbnail support
 - [ ] Multiple file format support
-
-
 
 ## Technologies
 - Python

@@ -98,7 +98,7 @@ class RemoveUnusedClips(CronJobBase):
     code = "clips.remove_unused_clips"  # a unique code
 
     def do(self):
-        clip_uuids = [clip.uuid for clip in apps.get_model("clips.Clip").objects.all()]
+        clip_uuids = [f'{clip.uuid}.mp4' for clip in apps.get_model("clips.Clip").objects.all()]
 
         for obj in object_store.list_objects(namespace, bucket.name).data.objects:
             if obj.name not in clip_uuids:

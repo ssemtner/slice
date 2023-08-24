@@ -8,6 +8,8 @@ class UploadClipForm(forms.Form):
             attrs={
                 "class": "bg-zinc-200 rounded-lg p-2",
                 "@change": "loadPreview",
+                "accept": "video/mp4",
+                "id": "video-input",
             }
         ),
     )

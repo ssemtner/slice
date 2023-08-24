@@ -23,7 +23,17 @@
     </form>
 
     <div class="col-span-2 lg:col-span-1 xl:col-span-2 flex justify-center">
-      <video id="preview" x-show="preview" controls></video>
+      <div x-show="preview">
+        <video id="preview" controls x-ref="preview"></video>
+        <div class="flex gap-2 pt-2">
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            @click="start=$refs.preview.currentTime">Set Start Point</button>
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            @click="end=$refs.preview.currentTime">Set End Point</button>
+          <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ms-auto"
+            @click="trim()">Trim</button>
+        </div>
+      </div>
 
       <div x-show="loading" class="m-auto p-8">
         <svg aria-hidden="true"
@@ -52,12 +62,15 @@
 {% endblock %}
 
 {% block script %}
+{% load static %}
 <script>
   document.addEventListener("alpine:init", () => {
     Alpine.data('upload', () => ({
       preview: false,
       loading: false,
       url: '',
+      start: -1,
+      end: -1,
       loadPreview(e) {
         this.loading = true;
         this.preview = false;
@@ -67,30 +80,104 @@
         const reader = new FileReader();
 
         const video = document.getElementById("preview");
-        video.pause()
+        video.pause();
         video.textContent = "";
 
         reader.onload = readerEvent => {
           const buffer = readerEvent.target.result;
           const url = URL.createObjectURL(new Blob([buffer], { type: "video/mp4" }));
 
+          this.url = url;
+
           const source = document.createElement("source");
           source.src = url;
           source.type = "video/mp4";
           video.appendChild(source);
-          video.load()
+          video.load();
 
           this.preview = true;
           this.loading = false;
         }
 
         reader.readAsArrayBuffer(file);
+      },
+      trim(e) {
+        const formatTime = (seconds) => {
+          let date = new Date(null);
+          date.setMilliseconds(seconds * 1000);
+          return date.toISOString().substr(11, 8).replace(".", ":");
+        }
+
+        start = formatTime(this.start);
+        end = formatTime(this.end);
+
+        setWorkerCallback((blob) => {
+          const url = URL.createObjectURL(blob);
+
+          const video = document.getElementById("preview");
+          video.pause()
+          video.textContent = "";
+
+          const source = document.createElement("source");
+          source.src = url;
+          source.type = "video/mp4";
+          video.appendChild(source);
+          video.load();
+
+          const input = document.getElementById("video-input");
+          const file = new File([blob], "trimmed.mp4", { type: "video/mp4", lastModified: new Date().getTime() }, 'utf-8');
+          const container = new DataTransfer();
+          container.items.add(file);
+          input.files = container.files;
+          console.log(input.files)
+        });
+
+        fetch(this.url).then((response) => {
+          return response.arrayBuffer();
+        }).then((buffer) => {
+          startWorkerTrim(buffer, start, end);
+        });
       }
-    }))
-  })
+    }));
+  });
 
-  function loadVideo(target) {
+  const worker = new Worker("{% static 'ffmpeg-worker-mp4.js' %}");
 
+  worker.onmessage = function (e) {
+    const msg = e.data;
+    switch (msg.type) {
+      case "ready":
+        ready = true;
+        break;
+      case "stdout":
+        // console.log(msg.data);
+        break;
+      case "stderr":
+        // console.log(msg.data);
+        break;
+      case "done":
+        // console.log(msg.data);
+        const out = msg.data.MEMFS[0];
+        const blob = new Blob([out.data], { type: "video/mp4" });
+        workerCallback(blob);
+        break;
+    }
+  };
+
+  let ready = false;
+  let workerCallback = () => { };
+
+  function setWorkerCallback(callback) {
+    workerCallback = callback;
   }
+
+  function startWorkerTrim(buffer, start, end) {
+    worker.postMessage({
+      type: "run",
+      MEMFS: [{ name: "in.mp4", data: new Uint8Array(buffer) }],
+      arguments: ["-ss", start, "-to", end, "-i", "in.mp4", "-c", "copy", "out.mp4"],
+    });
+  }
+
 </script>
 {% endblock %}
