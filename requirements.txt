@@ -5,5 +5,3 @@ django_cron
 python-dotenv
 gunicorn
 whitenoise[brotli]
-django-assets
-pytailwindcss
