@@ -1,8 +1,3 @@
-# I'm archiving this repository and rewriting slice in nextjs.
-As I am moving my focus to UI, django and templates gets less effective, and I'm not in the mood to learn HTMX.
-
-Also, there are much better free hosting options for js based projects.
-
 # Slice
 
 Slice is a simple platform to share short clips to a platform like discord (with embeds).
@@ -11,6 +6,7 @@ I was inspired to make this after reaching the discord file size limit when tryi
 
 The end goal is to integrate simple video editing tools to make it quicker for me to go from a 5 minute video file to an easily sharable clip.
 
+(I might try to rewrite this in a javascript based framework purely because the free hositing situation is so much better for js based apps than for django)
 
 ## Features
 - [x] Upload video files
